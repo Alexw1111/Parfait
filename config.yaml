@@ -1,0 +1,29 @@
+data:
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  history_window: 60
+  future_horizon: 20
+  features: ['open_qfq', 'high_qfq', 'low_qfq', 'close_qfq', 'volume']
+  features_num: 5
+
+llm:
+  model_name: "Qwen/Qwen2-7B-Instruct"
+  output_dir: "checkpoints/llm_sft"
+  lora_rank: 16
+  lora_alpha: 32
+  learning_rate: 2.0e-5
+  batch_size: 4
+  num_epochs: 3
+
+diffusion:
+  model_channels: 128
+  num_res_blocks: 2
+  context_dim: 256 # 必须等于 TransformerEncoder 的 model_dim
+  output_dir: "checkpoints/diffusion_model"
+  learning_rate: 1.0e-4
+  batch_size: 64
+  num_epochs: 50
+
+training:
+  device: "cuda"
+  seed: 42
