@@ -1,5 +1,7 @@
 <div align="center">
 
+![](./assets/logo.png)
+
 # 🍨 Parfait
 
 **P**arameter-**A**ligned **R**egime-**F**ollowing **AI** for **T**ime-series
@@ -7,8 +9,6 @@
 [![Generic badge](https://img.shields.io/badge/Status-Research_Preview-purple.svg)](https://github.com/yourusername/parfait)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Arxiv](https://img.shields.io/badge/arXiv-2401.XXXXX-b31b1b.svg)](https://arxiv.org)
 
 *A World Model for Quantitative Finance.*
 
