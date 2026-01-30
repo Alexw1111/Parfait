@@ -11,7 +11,7 @@ from peft import LoraConfig, prepare_model_for_kbit_training
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.llm_agent import LLMAgent
-from scripts.utils_distill import Distiller
+from script.utils_distill import Distiller
 
 def prepare_chatml_format(example):
     system_prompt = "You are a sophisticated financial analyst. Your task is to analyze a natural language instruction about a market scenario and break it down into a list of mutually exclusive potential outcomes."

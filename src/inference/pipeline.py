@@ -78,10 +78,9 @@ class InferencePipeline:
         # 归一化 history
         history_raw = np.asarray(history_data, dtype=np.float32)
 
-        # volume 过大则转 log1p
+        # volume 与训练一致做 log1p
         vol_idx = self.idx["volume"]
-        if np.isfinite(history_raw[:, vol_idx]).any() and np.nanmax(history_raw[:, vol_idx]) > 1000:
-            history_raw[:, vol_idx] = np.log1p(np.maximum(history_raw[:, vol_idx], 0.0))
+        history_raw[:, vol_idx] = np.log1p(np.maximum(history_raw[:, vol_idx], 0.0))
 
         history_norm, stats = normalize_history(history_raw, self.features)
         initial_price = float(stats.price_scale)

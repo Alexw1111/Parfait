@@ -14,13 +14,14 @@ def main():
     with open("config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     raw_dir = config['data']['raw_path']
-    processed_dir = config['data']['processed_path']
+    processed_dir = os.path.join(repo_root, config['data']['processed_path'])
     os.makedirs(processed_dir, exist_ok=True)
 
     all_windows = []
     
-    raw_full_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), raw_dir)
+    raw_full_path = os.path.join(repo_root, raw_dir)
     stock_files = [f for f in os.listdir(raw_full_path) if f.endswith('.csv')]
 
     print(f"Processing {len(stock_files)} stock files from {raw_full_path}...")

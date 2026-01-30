@@ -23,8 +23,9 @@ class DDPMScheduler:
         self.alphas_cumprod = torch.cumprod(self.alphas, dim=0)
 
     def add_noise(self, original_samples, noise, timesteps):
-        sqrt_alpha_cumprod = self.alphas_cumprod[timesteps].sqrt()
-        sqrt_one_minus_alpha_cumprod = (1 - self.alphas_cumprod[timesteps]).sqrt()
+        alphas_cumprod = self.alphas_cumprod.to(timesteps.device)
+        sqrt_alpha_cumprod = alphas_cumprod[timesteps].sqrt()
+        sqrt_one_minus_alpha_cumprod = (1 - alphas_cumprod[timesteps]).sqrt()
 
         sqrt_alpha_cumprod = sqrt_alpha_cumprod.flatten()
         while len(sqrt_alpha_cumprod.shape) < len(original_samples.shape):
