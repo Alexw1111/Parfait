@@ -1,6 +1,12 @@
 import numpy as np
 import pandas as pd
-from arch import arch_model
+
+# Optional dependency: `arch` is not always installed.
+try:
+    from arch import arch_model
+except Exception:
+    arch_model = None
+
 
 def calculate_hurst_exponent(series: np.ndarray, max_lag: int = 100) -> float:
     """
@@ -9,16 +15,43 @@ def calculate_hurst_exponent(series: np.ndarray, max_lag: int = 100) -> float:
     Hurst 指数 = 0.5: 随机游走
     Hurst 指数 > 0.5: 趋势增强
     """
-    lags = range(2, max_lag)
-    tau = [np.sqrt(np.std(np.subtract(series[lag:], series[:-lag]))) for lag in lags]
+    series = np.asarray(series, dtype=np.float64)
+    series = series[np.isfinite(series)]
+    if series.size < 20:
+        # 短序列上 Hurst 估计方差极大，直接回退到 0.5
+        return 0.5
+
+    # max_lag 不允许超过序列长度，否则会出现空切片
+    max_lag = int(min(max_lag, max(10, series.size // 2)))
+    lags = np.arange(2, max_lag, dtype=np.int64)
+
+    tau = []
+    for lag in lags:
+        diff = series[lag:] - series[:-lag]
+        if diff.size == 0:
+            continue
+        v = np.std(diff)
+        if np.isfinite(v) and v > 0:
+            tau.append(np.sqrt(v))
+
+    if len(tau) < 2:
+        return 0.5
+
+    tau = np.asarray(tau)
+    lags = lags[: tau.size]
     poly = np.polyfit(np.log(lags), np.log(tau), 1)
-    return poly[0]
+    hurst = float(poly[0])
+    if not np.isfinite(hurst):
+        return 0.5
+    return hurst
+
 
 def calculate_realized_volatility(log_returns: np.ndarray) -> float:
     """
     计算年化已实现波动率。
     """
     return np.sqrt(np.sum(log_returns**2)) * np.sqrt(252 / len(log_returns))
+
 
 def detect_jumps_bipower(log_returns: np.ndarray, threshold_multiplier: float = 3.0) -> tuple[float, float, float]:
     """
@@ -39,6 +72,7 @@ def detect_jumps_bipower(log_returns: np.ndarray, threshold_multiplier: float = 
     
     return jump_intensity, jump_mean, jump_vol
 
+
 def fit_garch_params(log_returns: np.ndarray) -> dict:
     """
     拟合 GARCH(1,1) 模型并返回其关键参数。
@@ -47,16 +81,18 @@ def fit_garch_params(log_returns: np.ndarray) -> dict:
     if np.var(log_returns) < 1e-12:
         return {'omega': 0, 'alpha': 0, 'beta': 0}
         
+    if arch_model is None:
+        return {'omega': 0, 'alpha': 0, 'beta': 0}
+
     garch_model = arch_model(log_returns * 100, vol='Garch', p=1, q=1, dist='Normal')
     
     try:
         res = garch_model.fit(disp='off')
         params = res.params
         return {
-            'omega': params.get('omega', 0),      # 长期方差的常数项
-            'alpha': params.get('alpha[1]', 0),   # ARCH 项系数 (前期误差)
-            'beta': params.get('beta[1]', 0)      # GARCH 项系数 (前期方差)
+            'omega': params.get('omega', 0),
+            'alpha': params.get('alpha[1]', 0),
+            'beta': params.get('beta[1]', 0)
         }
     except Exception:
-        # 如果模型无法收敛，返回默认值
         return {'omega': 0, 'alpha': 0, 'beta': 0}

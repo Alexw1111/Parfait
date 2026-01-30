@@ -26,8 +26,8 @@ def generate_labels_for_window(future_df: pd.DataFrame) -> dict:
 
     drift = np.mean(future_log_ret) * 252
     volatility = estimators.calculate_realized_volatility(future_log_ret)
-    hurst = estimators.calculate_hurst_exponent(future_prices)
-    jump_intensity, jump_mean = estimators.detect_jumps_bipower(future_log_ret)
+    hurst = estimators.calculate_hurst_exponent(non_zero_prices)
+    jump_intensity, jump_mean, _jump_vol = estimators.detect_jumps_bipower(future_log_ret)
     garch_params = estimators.fit_garch_params(future_log_ret)
     
     peak = np.maximum.accumulate(future_prices)

@@ -18,14 +18,14 @@ def main():
     agent = LLMAgent(config['llm']['model_name'], use_lora=True)
     
     backbone = TransformerEncoder(input_dim=5, model_dim=256, num_heads=8, num_layers=3)
-    backbone.load_state_dict(torch.load(os.path.join(config['diffusion']['output_dir'], "backbone.pt")))
+    backbone.load_state_dict(torch.load(os.path.join(config['diffusion']['output_dir'], "backbone_final.pt")))
     
     diffusion = ConditionalUNet1D(
         input_channels=5, guide_channels=1, 
         model_channels=config['diffusion']['model_channels'], 
         context_dim=config['diffusion']['context_dim']
     )
-    diffusion.load_state_dict(torch.load(os.path.join(config['diffusion']['output_dir'], "unet.pt")))
+    diffusion.load_state_dict(torch.load(os.path.join(config['diffusion']['output_dir'], "unet_final.pt")))
 
     pipeline = InferencePipeline(agent, backbone, diffusion, config)
 
